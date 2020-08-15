@@ -76,7 +76,7 @@ def change_header_format(file_name:str, file_content:str):
         error("empty file !", infile=file_name)
     
     code_flag = 0
-    header_pattern = re.compile(r'([\s]*)([#]{1,4})[\s]+(.*)')
+    header_pattern = re.compile(r'([\s]*)([#]{1,4})([\s]+)(.*)')
     for idx, line in enumerate(file_content.rstrip().split('\n')):
         if re.match(r'^```.*', line):
             code_flag = 1 if code_flag == 0 else 0
@@ -86,12 +86,17 @@ def change_header_format(file_name:str, file_content:str):
         
         groups = header_pattern.findall(line)[0]
         front_space = groups[0]
+        back_space = groups[2]
         header = groups[1]
-        title = groups[2]
+        title = groups[3]
 
         if code_flag:
-            out += "{}{} {}\n".format(front_space, header, title)
+            out += "{}{}{}{}\n".format(front_space, header, back_space, title)
         else:
+            if len(front_space) >= 4:
+                error("too much space(s) in front of header !", infile=file_name, line_nb=idx)
+            if len(back_space) >= 4:
+                error("too much space(s) after header !", infile=file_name, line_nb=idx)
             if len(front_space) > 0:
                 error("space(s) in front of header !", Warn=True, infile=file_name, line_nb=idx)
             out += "{} {}\n".format(header, title)
@@ -104,10 +109,46 @@ def change_list_format(file_name:str, file_content:str):
         error("empty file !", infile=file_name)
     
     code_flag = 0
-    header_pattern = re.compile(r'([\s]*)([#]{1,4})[\s]+(.*)')
+    equation_flag = 0
+    prev_list = 0
+    list_factor = 4
+    list_pattern = re.compile(r'([\s]*)- (.*)')
+    for idx, line in enumerate(file_content.rstrip().split('\n')):
+        if re.match(r'^```.*', line):
+            code_flag = 1 if code_flag == 0 else 0
+        if re.match(r'^$$', line):
+            equation_flag = 1 if equation_flag == 0 else 0
+        
+        if not list_pattern.match(line) or code_flag or equation_flag:
+            out += line + "\n"
+            prev_list = 0
+            continue
+        
+        groups = list_pattern.findall(line)[0]
+        front_space = groups[0]
+        content = groups[1]
+
+        if len(front_space) % list_factor != 0:
+            error("number of spaces in front of list is not a factor of {} !".format(list_factor), infile=file_name, line_nb=idx)
+
+        if prev_list:
+            out += "\n"
+        
+        out += line + "\n"
+        prev_list = 1
 
     return (out)
-# def replace_empty_code_block_style()
+
+# def change_empty_code_block_style(file_name:str, file_content:str):
+#     out = ""
+
+#     if len(file_content) == 0:
+#         error("empty file !", infile=file_name)
+    
+#     code_pattern = re.compile(r'^```(.*)')
+#     for idx, line in enumerate(file_content.rstrip().split('\n')):
+
+#     return (out)
 
 # def format_equations()
 

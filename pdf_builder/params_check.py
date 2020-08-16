@@ -1,21 +1,53 @@
-import re
-import warnings
+#==============================================================================#
+#=============================== LIBRAIRIES ===================================#
+#==============================================================================#
 
-def error(s, Warn=False, infile=None, line_nb=-1):
-    out = "[Error]" if not Warn else "[Warning]"
-    out += " {}".format(infile) if infile else ""
-    out += ":{}".format(line_nb + 1) if line_nb > -1 else ""
-    
-    if not Warn:
-        raise Exception("{} :: {}".format(out, s))
-    print("{} : {}".format(out, s))
+import re
+import os
+from utils import error, sub_run
+
+#==============================================================================#
+#================================ FUNCTIONS ===================================#
+#==============================================================================#
+
 
 def check_bootcamp_title(title:str):
     if not title or len(title) < 3 or len(title) > 20:
         error("invalid bootcamp title length ! (length must be between 3 and 20)")
     if re.match(r'![A-Za-z ]', title):
         error("invalid bootcamp title chars ([A-Za-z ] allowed)")
-    return (True)
+    return (True)      
+
+def check_input_dir(directory:str):
+    #check directory is in the format dayXX
+    while directory[-1] == '/':
+        directory = directory[:-1]
+    dir = directory.split('/')[-1]
+    regex = re.compile(r'^day[0-9]{2}$')
+    if not regex.search(dir):
+        error("'{}' invalid day directory (dayXX allowed)".format(directory))
+
+    #check if it is a directory
+    if not os.path.isdir(directory):
+        error("'{}' is not a directory !".format(directory))
+
+    #check directory has a dayXX.md
+    ls_day = sub_run("ls {}/day*.md".format(directory))
+    if ls_day.stderr:
+        error("markdown for day missing")
+
+    #check directory has exXX.md files
+    ls_ex = sub_run("ls {}/ex*/ex*.md".format(directory))
+    if ls_ex.stderr:
+        error("markdown for exercices missing")
+
+
+def check_input_file(input_file:str):
+    if not os.path.isfile(input_file):
+        error("'{}' is not a file !".format(input_file))
+    if input_file.split('.')[-1] != "md":
+         error("'{}' is not a markdown file".format(input_file))
+
 
 def check_day_title(title:str):
     if not title or len(title) < 11 or len(title) > 40:
@@ -26,131 +58,7 @@ def check_day_title(title:str):
         error("invalid day title ! (it must be formatted as follows \"DayXX - ...\")")
     return (True)
 
-def change_img_format(file_name:str, file_content:str):
-    groups = None
-    title = None
-    path = None
-    style = None
-    out = ""
-
-    if len(file_content) == 0:
-        error("empty file !", infile=file_name)
-    
-    img_pattern_md = re.compile(r'[\s]*\!\[(.*)\]\((.*)\)({.*})?')
-    img_pattern_html = re.compile(r'[\s]*<img.*src=[\"\']{1}(.*)[\"\']{1}.*/>')
-    for idx, line in enumerate(file_content.rstrip().split('\n')):
-        if not img_pattern_md.match(line) and not img_pattern_html.match(line):
-            out += line + "\n"
-            continue
-
-        if img_pattern_md.match(line):
-            groups = img_pattern_md.findall(line)[0]
-            title = groups[0]
-            path = groups[1]
-            style = groups[2]
-        
-        if img_pattern_html.match(line):
-            groups = img_pattern_html.findall(line)[0]
-            title = groups.split('/')[-1].split('.')[0]
-            path = groups
-            style = ''
-
-        if len(title) == 0:
-            error("empty image title !", Warn=True, infile=file_name, line_nb=idx)
-            title = path.split('/')[-1].split('.')[0]
-        if len(path) == 0:
-            error("empty image path !", infile=file_name, line_nb=idx)
-
-        if len(style) != 0 and not re.match(r'.*width=[0-9]{1,4}px.*', style):
-            error("wrong image style format ! (example: '{width=250px}')", infile=file_name, line_nb=idx)
-        
-        path = "tmp/assets/" + path.split('/')[-1]
-        out += "![{}]({}){}".format(title, path, style) + "\n"
-    
-    return (out)
-
-def change_header_format(file_name:str, file_content:str):
-    out = ""
-
-    if len(file_content) == 0:
-        error("empty file !", infile=file_name)
-    
-    code_flag = 0
-    header_pattern = re.compile(r'([\s]*)([#]{1,4})([\s]+)(.*)')
-    for idx, line in enumerate(file_content.rstrip().split('\n')):
-        if re.match(r'^```.*', line):
-            code_flag = 1 if code_flag == 0 else 0
-        if not header_pattern.match(line):
-            out += line + "\n"
-            continue
-        
-        groups = header_pattern.findall(line)[0]
-        front_space = groups[0]
-        back_space = groups[2]
-        header = groups[1]
-        title = groups[3]
-
-        if code_flag:
-            out += "{}{}{}{}\n".format(front_space, header, back_space, title)
-        else:
-            if len(front_space) >= 4:
-                error("too much space(s) in front of header !", infile=file_name, line_nb=idx)
-            if len(back_space) >= 4:
-                error("too much space(s) after header !", infile=file_name, line_nb=idx)
-            if len(front_space) > 0:
-                error("space(s) in front of header !", Warn=True, infile=file_name, line_nb=idx)
-            out += "{} {}\n".format(header, title)
-    return (out)
-
-def change_list_format(file_name:str, file_content:str):
-    out = ""
-
-    if len(file_content) == 0:
-        error("empty file !", infile=file_name)
-    
-    code_flag = 0
-    equation_flag = 0
-    prev_list = 0
-    list_factor = 4
-    list_pattern = re.compile(r'([\s]*)- (.*)')
-    for idx, line in enumerate(file_content.rstrip().split('\n')):
-        if re.match(r'^```.*', line):
-            code_flag = 1 if code_flag == 0 else 0
-        if re.match(r'^$$', line):
-            equation_flag = 1 if equation_flag == 0 else 0
-        
-        if not list_pattern.match(line) or code_flag or equation_flag:
-            out += line + "\n"
-            prev_list = 0
-            continue
-        
-        groups = list_pattern.findall(line)[0]
-        front_space = groups[0]
-        content = groups[1]
-
-        if len(front_space) % list_factor != 0:
-            error("number of spaces in front of list is not a factor of {} !".format(list_factor), infile=file_name, line_nb=idx)
-
-        if prev_list:
-            out += "\n"
-        
-        out += line + "\n"
-        prev_list = 1
-
-    return (out)
-
-# def change_empty_code_block_style(file_name:str, file_content:str):
-#     out = ""
-
-#     if len(file_content) == 0:
-#         error("empty file !", infile=file_name)
-    
-#     code_pattern = re.compile(r'^```(.*)')
-#     for idx, line in enumerate(file_content.rstrip().split('\n')):
-
-#     return (out)
-
-# def format_equations()
-
-
-
+def check_file_dir(args):
+    if args.input_dir and args.input_file:
+        error("you provided a file AND a folder, please\
+               provide a file OR a folder !")

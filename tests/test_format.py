@@ -8,9 +8,9 @@ from pdf_builder import check_bootcamp_title,\
                         check_day_title,\
                         change_img_format,\
                         change_header_format,\
-                        change_list_format#,
-                        #\
-                        #change_empty_code_block_style
+                        change_list_format,\
+                        change_empty_code_block_style,\
+                        change_equations_format
 
 
 class Test_check_bootcamp_title:
@@ -267,7 +267,7 @@ class Test_change_header_format:
             res = change_header_format("toto.md", "####    header\n")
             assert res == "#### header\n"
         except Exception as e:
-            assert str(e) == '[Error] toto.md:1 :: too much space(s) after header !'
+            assert str(e) == ''
     
     def test_comment_in_block(self):
         try:
@@ -312,87 +312,116 @@ class Test_change_list_format:
         except Exception as e:
             assert str(e) == ''
     
-    # def test_list_inner_1_wrong_factor(self):
-    #     try:
-    #         res = change_list_format("toto.md", "l1\n- ttt\n\n- aaa\n   - bbb\n- ccc\nl3\n")
-    #         assert res == "l1\n- ttt\n\n- aaa\n\n    - bbb\n\n- ccc\nl3\n"
-    #     except Exception as e:
-    #         assert str(e) == '[Error] toto.md:5 :: number of spaces in front of list is not a factor of 4 !'
+    def test_list_inner_1_wrong_factor(self):
+        try:
+            res = change_list_format("toto.md", "l1\n- ttt\n\n- aaa\n   - bbb\n- ccc\nl3\n")
+            assert res == ""
+        except Exception as e:
+            assert str(e) == '[Error] toto.md:5 :: number of spaces in front of list is not a factor of 4 !'
     
-    # def test_list_inner_2(self):
-    #     try:
-    #         res = change_list_format("toto.md", "l1\n- ttt\n\n- aaa\n    - bbb\n        - ddd\n    - eee\n- ccc\nl3\n")
-    #         assert res == "l1\n- ttt\n\n- aaa\n\n    - bbb\n\n        - ddd\n\n    - eee\n\n- ccc\nl3\n"
-    #     except Exception as e:
-    #         assert str(e) == ''
+    def test_list_inner_2(self):
+        try:
+            res = change_list_format("toto.md", "l1\n- ttt\n\n- aaa\n    - bbb\n        - ddd\n    - eee\n- ccc\nl3\n")
+            assert res == "l1\n- ttt\n\n- aaa\n\n    - bbb\n\n        - ddd\n\n    - eee\n\n- ccc\nl3\n"
+        except Exception as e:
+            assert str(e) == ''
+        
+    def test_list_inner_2_wrong_factor(self):
+        try:
+            res = change_list_format("toto.md", "l1\n- ttt\n\n- aaa\n    - bbb\n         - ddd\n    - eee\n- ccc\nl3\n")
+            assert res == "l1\n- ttt\n\n- aaa\n\n    - bbb\n\n         - ddd\n    - eee\n\n- ccc\nl3\n"
+        except Exception as e:
+            assert str(e) == '[Error] toto.md:6 :: number of spaces in front of list is not a factor of 4 !'
     
-    # def test_list_inner_2_wrong_factor(self):
-    #     try:
-    #         res = change_list_format("toto.md", "l1\n- ttt\n\n- aaa\n    - bbb\n         - ddd\n    - eee\n- ccc\nl3\n")
-    #         assert res == "l1\n- ttt\n\n- aaa\n\n    - bbb\n\n         - ddd\n\n    - eee\n\n- ccc\nl3\n"
-    #     except Exception as e:
-    #         assert str(e) == '[Error] toto.md:6 :: number of spaces in front of list is not a factor of 4 !'
+    def test_list_in_code(self):
+        try:
+            res = change_list_format("toto.md", "l1\n```\n- ttt\n  - aaa\n```\nl3\n")
+            assert res == "l1\n```\n- ttt\n  - aaa\n```\nl3\n"
+        except Exception as e:
+            assert str(e) == ''
     
-    # def test_list_in_code(self):
-    #     try:
-    #         res = change_list_format("toto.md", "l1\n```\n- ttt\n- aaa\n```\nl3\n")
-    #         assert res == "l1\n```\n- ttt\n- aaa\n```\nl3\n"
-    #     except Exception as e:
-    #         assert str(e) == ''
+    def test_list_in_equation(self):
+        try:
+            res = change_list_format("toto.md", "l1\n$$\n- ttt\n  - aaa\n$$\nl3\n")
+            assert res == "l1\n$$\n- ttt\n  - aaa\n$$\nl3\n"
+        except Exception as e:
+            assert str(e) == ''
     
-# class Test_change_empty_block_style:
-#     def test_empty_file(self):
-#         try:
-#             res = change_empty_code_block_style("toto.md", "")
-#             assert res == ""
-#         except Exception as e:
-#             assert str(e) == '[Error] toto.md :: empty file !'
+class Test_change_empty_block_style:
+    def test_empty_file(self):
+        try:
+            res = change_empty_code_block_style("toto.md", "")
+            assert res == ""
+        except Exception as e:
+            assert str(e) == '[Error] toto.md :: empty file !'
     
-#     def test_empty_file(self):
-#         try:
-#             res = change_empty_code_block_style("toto.md", "dd\n```python\ndd\n```\ndd\n")
-#             assert res == ""
-#         except Exception as e:
-#             assert str(e) == '[Error] toto.md :: empty file !'
+    def test_python_block(self):
+        try:
+            res = change_empty_code_block_style("toto.md", "dd\n```python\ndd\n```\ndd\n")
+            assert res == "dd\n```python\ndd\n```\ndd\n"
+        except Exception as e:
+            assert str(e) == ''
     
-#     def test_empty_file(self):
-#         try:
-#             res = change_empty_code_block_style("toto.md", "dd\n```bash\ndd\n```\ndd\n")
-#             assert res == ""
-#         except Exception as e:
-#             assert str(e) == '[Error] toto.md :: empty file !'
+    def test_bash_block(self):
+        try:
+            res = change_empty_code_block_style("toto.md", "dd\n```bash\ndd\n```\ndd\n")
+            assert res == "dd\n```txt\ndd\n```\ndd\n"
+        except Exception as e:
+            assert str(e) == ''
     
-#     def test_empty_file(self):
-#         try:
-#             res = change_empty_code_block_style("toto.md", "dd\n```sh\ndd\n```\ndd\n")
-#             assert res == ""
-#         except Exception as e:
-#             assert str(e) == '[Error] toto.md :: empty file !'
+    def test_sh_block(self):
+        try:
+            res = change_empty_code_block_style("toto.md", "dd\n```sh\ndd\n```\ndd\n")
+            assert res == "dd\n```txt\ndd\n```\ndd\n"
+        except Exception as e:
+            assert str(e) == ''
     
-#     def test_empty_file(self):
-#         try:
-#             res = change_empty_code_block_style("toto.md", "dd\n```console\ndd\n```\ndd\n")
-#             assert res == ""
-#         except Exception as e:
-#             assert str(e) == '[Error] toto.md :: empty file !'
+    def test_console_block(self):
+        try:
+            res = change_empty_code_block_style("toto.md", "dd\n```console\ndd\n```\ndd\n")
+            assert res == "dd\n```txt\ndd\n```\ndd\n"
+        except Exception as e:
+            assert str(e) == ''
     
-#     def test_empty_file(self):
-#         try:
-#             res = change_empty_code_block_style("toto.md", "dd\n```\ndd\n```\ndd\n")
-#             assert res == ""
-#         except Exception as e:
-#             assert str(e) == '[Error] toto.md :: empty file !'
+    def test_empty_block(self):
+        try:
+            res = change_empty_code_block_style("toto.md", "dd\n```\ndd\n```\ndd\n")
+            assert res == "dd\n```txt\ndd\n```\ndd\n"
+        except Exception as e:
+            assert str(e) == ''
 
-#     def test_empty_file(self):
-#         try:
-#             res = change_empty_code_block_style("toto.md", "dd\n```\ndd\n```\ndd```\n")
-#             assert res == ""
-#         except Exception as e:
-#             assert str(e) == '[Error] toto.md :: empty file !'
+    def test_wrong_block_number(self):
+        try:
+            res = change_empty_code_block_style("toto.md", "dd\n```\ndd\n```\ndd\n```\ndd\n")
+            assert res == ""
+        except Exception as e:
+            assert str(e) == '[Error] toto.md:6 :: could not find closing code snippet !'
     
-#     def test_empty_file(self):
-#         try:
-#             res = change_empty_code_block_style("toto.md", "dd\n```\ndd\n```\ndd\n```python\ndd\n```\ndd\n```\ndd\n```\ndd\n")
-#             assert res == ""
-#         except Exception as e:
-#             assert str(e) == '[Error] toto.md :: empty file !'
+    def test_multiple_code_blocks(self):
+        try:
+            res = change_empty_code_block_style("toto.md", "dd\n```\ndd\n```\ndd\n```python\ndd\n```\ndd\n```\ndd\n```\ndd\n")
+            assert res == "dd\n```txt\ndd\n```\ndd\n```python\ndd\n```\ndd\n```txt\ndd\n```\ndd\n"
+        except Exception as e:
+            assert str(e) == '[Error] toto.md :: empty file !'
+
+class Test_format_equations:
+    def test_empty_file(self):
+        try:
+            res = change_equations_format("toto.md", "")
+            assert res == ""
+        except Exception as e:
+            assert str(e) == '[Error] toto.md :: empty file !'
+    
+    def test_frac_replace(self):
+        try:
+            res = change_equations_format("toto.md", "dd\n$$\n\\frac{1/0}\n$$\ndd\n")
+            assert res == "dd\n\n$$\\large\n\\cfrac{1/0}\n$$\\normalsize\n\ndd\n"
+        except Exception as e:
+            assert str(e) == ''
+    
+    def test_wrong_number_eq_mark(self):
+        try:
+            res = change_equations_format("toto.md", "dd\n$$\n\\frac{1/0}\n$$\ndd\n$$\ndd\n")
+            assert res == ""
+        except Exception as e:
+            assert str(e) == '[Error] toto.md:6 :: could not find closing equation mark !'

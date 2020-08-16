@@ -8,5 +8,5 @@ RUN apk update \
 	&& tlmgr install fvextra \
 	&& tlmgr install sectsty \
 	&& tlmgr install titlesec \
-    && tlmgr install ucs \
-    && tlmgr install cancel
+        && tlmgr install ucs \
+        && tlmgr install cancel

@@ -1,3 +1,7 @@
+[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![Build Status](https://travis-ci.org/fxbabin/expert_system.png)](https://travis-ci.org/fxbabin/pdf_builder_v2)
+
+
 # Pdf_builder
 
 42AI_pdf_builder is a program to create the subjects of [42 AI](https://github.com/42-AI) bootcamps. Given markdown files, it produces a PDF.

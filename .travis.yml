@@ -4,5 +4,5 @@ python:
 install:
   - pip install flake8
 script:
-  - flake8 --exclude pdf_builder/__init__.py
+  - flake8 pdf_builder/* --exclude pdf_builder/__init__.py
   - pytest

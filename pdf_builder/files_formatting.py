@@ -4,11 +4,9 @@
 # =============================== LIBRAIRIES =================================#
 # ============================================================================#
 
-import platform
 import re
-
+import platform
 from .utils import sub_run, error
-
 
 # ============================================================================#
 # ================================ FUNCTIONS =================================#
@@ -35,7 +33,7 @@ def day_files_cpy(input_dir, template_file):
     for f in ex_list.split():
         pattern = re.compile(r'(ex[0-9]{2}\.md)$')
         for e in pattern.findall(f.decode()):
-            sub_run("cp {} tmp/{}".format(f.decode(), e[:-3] + "_master.md"))
+            sub_run("cp {} tmp/{}".format(f.decode(),  e[:-3] + "_master.md"))
         pattern = re.compile(r'(ex[0-9]{2}_interlude.*)$')
         for e in pattern.findall(f.decode()):
             sub_run("cp {} tmp/".format(f.decode()))
@@ -49,14 +47,14 @@ def input_file_cpy(input_file, template_file):
     # copy input_file into tmp
     sub_run("cp {} tmp/".format(input_file))
     sub_run("cp {} tmp/".format(template_file))
-    imgs_dir = sub_run("ls -d {}/assets"
-                       .format("/".join(input_file.split('/')[:-1])))
+    imgs_dir = sub_run(
+        "ls -d {}/assets".format("/".join(input_file.split('/')[:-1])))
     if not imgs_dir.stderr:
         sub_run("cp -rp {} tmp/".format(imgs_dir.stdout.decode().strip()))
 
-
 # FILES FORMAT
 #################
+
 
 def files_format(file_name):
     if platform.system() == "Darwin":
@@ -68,9 +66,9 @@ def files_format(file_name):
             "echo '\n\\\\clearpage' >> tmp/{}"
             .format(file_name.split('/')[-1]))
 
-
 # IMAGE FORMAT
 #################
+
 
 def change_img_format(file_name: str, file_content: str):
     groups = None
@@ -118,9 +116,9 @@ def change_img_format(file_name: str, file_content: str):
 
     return (out)
 
-
 # HEADER FORMAT
 ##################
+
 
 def change_header_format(file_name: str, file_content: str):
     out = ""
@@ -154,7 +152,6 @@ def change_header_format(file_name: str, file_content: str):
             out += "{} {}\n".format(header, title)
     return (out)
 
-
 # INSERT BOOTCAMP TITLE / PDF TITLE
 ######################################
 
@@ -181,7 +178,7 @@ def insert_line(file, idx, content):
 
 def insert_bootcamp_title(args):
     idx = get_line_containing("tmp/template.latex", "bootcamp_title")
-    insert_line("tmp/template.latex", idx, args.bootcamp_title)
+    insert_line("tmp/template.latex", idx,  args.bootcamp_title)
 
 
 def insert_day_title(args):
@@ -190,9 +187,9 @@ def insert_day_title(args):
     idx = get_line_containing("tmp/template.latex", "day_title")
     insert_line("tmp/template.latex", idx, args.pdf_title.split(' - ')[1])
 
-
 # CONVERT BLANK CODE BLOCKS TO TXT
 #####################################
+
 
 def change_empty_code_block_style(file_name: str, file_content: str):
     out = ""
@@ -220,11 +217,9 @@ def change_empty_code_block_style(file_name: str, file_content: str):
         else:
             if language.strip() not in ['console', 'bash', 'sh',
                                         'zsh', 'python', 'py', 'txt']:
-                error(
-                    "unsupported language ! (supported languages are:\
-                         'console', 'bash', 'sh', 'zsh', 'python',\
-                              'py', 'txt')",
-                    infile=file_name, line_nb=idx)
+                error("unsupported language ! (supported languages are: 'console', \
+'bash', 'sh', 'zsh', 'python', 'py', 'txt')",
+                      infile=file_name, line_nb=idx)
 
             if language.strip() in ['py', 'python']:
                 out += "```{}\n".format(language)
@@ -238,9 +233,9 @@ def change_empty_code_block_style(file_name: str, file_content: str):
 
     return (out)
 
-
 # FORMAT LIST
 ################
+
 
 def change_list_format(file_name: str, file_content: str):
     out = ""
@@ -269,9 +264,8 @@ def change_list_format(file_name: str, file_content: str):
         front_space = groups[0]
 
         if len(front_space) % list_factor != 0:
-            error("number of spaces in front of list is not a factor \
-                of {} !".format(list_factor), infile=file_name,
-                  line_nb=idx)
+            error("number of spaces in front of list is not a factor of {} !"
+                  .format(list_factor), infile=file_name, line_nb=idx)
 
         if prev_list:
             out += "\n"
@@ -281,9 +275,9 @@ def change_list_format(file_name: str, file_content: str):
 
     return (out)
 
-
 # FORMAT EQUATIONS
 ##################
+
 
 def change_equations_format(file_name: str, file_content: str):
     out = ""
@@ -314,9 +308,9 @@ def change_equations_format(file_name: str, file_content: str):
 
     return (out)
 
-
 # SET URL COLOR
 ##################
+
 
 def set_url_color(file_name: str, file_content: str):
     out = "---\ncolorlinks: true\nurlcolor: \"blue\"\n---\n\n"
@@ -326,7 +320,6 @@ def set_url_color(file_name: str, file_content: str):
     for idx, line in enumerate(file_content.rstrip().split('\n')):
         out += line + "\n"
     return (out)
-
 
 # RUN PANDOC
 ###############
@@ -339,7 +332,6 @@ def run_pandoc(file_name):
     if res.stderr:
         print(file_name)
         error(res.stderr.decode().strip(), file_name)
-    # sub_run("rm {}".format(file_name + ".pdf"))
 
 
 def run_pandoc_all(outfile, debug):

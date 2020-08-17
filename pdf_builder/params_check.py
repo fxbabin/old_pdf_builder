@@ -15,8 +15,8 @@ from .utils import error, sub_run
 
 def check_bootcamp_title(title: str):
     if not title or len(title) < 3 or len(title) > 20:
-        error("invalid bootcamp title length ! (length must be between\
-             3 and 20)")
+        error("invalid bootcamp title length ! (length must be between \
+3 and 20)")
     if re.match(r'![A-Za-z ]', title):
         error("invalid bootcamp title chars ([A-Za-z ] allowed)")
     return (True)
@@ -56,7 +56,7 @@ def check_input_file(input_file: str):
 def check_day_title(title: str):
     if not title or len(title) < 11 or len(title) > 40:
         error("invalid day title length ! (length must be between\
-             11 and 40)")
+ 11 and 40)")
     if re.match(r'![A-Za-z -]', title):
         error("invalid day title chars ([A-Za-z -] allowed)")
     if re.match(r'!(^Day[0-9]{2} - .*)', title):

@@ -1,28 +1,30 @@
 #!/usr/bin/env python3
 
-#==============================================================================#
-#=============================== LIBRAIRIES ===================================#
-#==============================================================================#
+# ============================================================================#
+# =============================== LIBRAIRIES =================================#
+# ============================================================================#
 
-import re
 import platform
-from utils import sub_run, error
+import re
 
-#==============================================================================#
-#================================ FUNCTIONS ===================================#
-#==============================================================================#
+from .utils import sub_run, error
+
+
+# ============================================================================#
+# ================================ FUNCTIONS =================================#
+# ============================================================================#
 
 # FILES COPY
 ###############
 
 
 def day_files_cpy(input_dir, template_file):
-    #retrieve file lists
+    # retrieve file lists
     day_f = sub_run("ls {}/day*.md".format(input_dir)).stdout.strip()
     ex_list = sub_run("ls {}/**/ex*.md".format(input_dir)).stdout
     imgs_dir = sub_run("ls -d {}/assets".format(input_dir))
 
-    #create a tmp dir with a copy of all files
+    # create a tmp dir with a copy of all files
     sub_run("rm -rf tmp")
     sub_run("mkdir -p tmp")
     if not imgs_dir.stderr:
@@ -33,37 +35,44 @@ def day_files_cpy(input_dir, template_file):
     for f in ex_list.split():
         pattern = re.compile(r'(ex[0-9]{2}\.md)$')
         for e in pattern.findall(f.decode()):
-            sub_run("cp {} tmp/{}".format(f.decode(),  e[:-3] + "_master.md"))
+            sub_run("cp {} tmp/{}".format(f.decode(), e[:-3] + "_master.md"))
         pattern = re.compile(r'(ex[0-9]{2}_interlude.*)$')
         for e in pattern.findall(f.decode()):
             sub_run("cp {} tmp/".format(f.decode()))
 
 
 def input_file_cpy(input_file, template_file):
-    #create a tmp dir with a copy of all files
+    # create a tmp dir with a copy of all files
     sub_run("rm -rf tmp")
     sub_run("mkdir -p tmp")
 
-    #copy input_file into tmp
+    # copy input_file into tmp
     sub_run("cp {} tmp/".format(input_file))
     sub_run("cp {} tmp/".format(template_file))
-    imgs_dir = sub_run("ls -d {}/assets".format("/".join(input_file.split('/')[:-1])))
+    imgs_dir = sub_run("ls -d {}/assets"
+                       .format("/".join(input_file.split('/')[:-1])))
     if not imgs_dir.stderr:
         sub_run("cp -rp {} tmp/".format(imgs_dir.stdout.decode().strip()))
+
 
 # FILES FORMAT
 #################
 
 def files_format(file_name):
     if platform.system() == "Darwin":
-        sub_run("echo '\n\\\\clearpage' >> tmp/{}".format(file_name.split('/')[-1]))
+        sub_run(
+            "echo '\n\\\\clearpage' >> tmp/{}"
+            .format(file_name.split('/')[-1]))
     else:
-        sub_run("echo '\n\\\\clearpage' >> tmp/{}".format(file_name.split('/')[-1]))
+        sub_run(
+            "echo '\n\\\\clearpage' >> tmp/{}"
+            .format(file_name.split('/')[-1]))
+
 
 # IMAGE FORMAT
 #################
 
-def change_img_format(file_name:str, file_content:str):
+def change_img_format(file_name: str, file_content: str):
     groups = None
     title = None
     path = None
@@ -72,7 +81,7 @@ def change_img_format(file_name:str, file_content:str):
 
     if len(file_content) == 0:
         error("empty file !", infile=file_name)
-    
+
     img_pattern_md = re.compile(r'[\s]*\!\[(.*)\]\((.*)\)({.*})?')
     img_pattern_html = re.compile(r'[\s]*<img.*src=[\"\']{1}(.*)[\"\']{1}.*/>')
     for idx, line in enumerate(file_content.rstrip().split('\n')):
@@ -85,7 +94,7 @@ def change_img_format(file_name:str, file_content:str):
             title = groups[0]
             path = groups[1]
             style = groups[2]
-        
+
         if img_pattern_html.match(line):
             groups = img_pattern_html.findall(line)[0]
             title = groups.split('/')[-1].split('.')[0]
@@ -93,28 +102,32 @@ def change_img_format(file_name:str, file_content:str):
             style = ''
 
         if len(title) == 0:
-            error("empty image title !", Warn=True, infile=file_name, line_nb=idx)
+            error("empty image title !", Warn=True,
+                  infile=file_name, line_nb=idx)
             title = path.split('/')[-1].split('.')[0]
         if len(path) == 0:
             error("empty image path !", infile=file_name, line_nb=idx)
 
         if len(style) != 0 and not re.match(r'.*width=[0-9]{1,4}px.*', style):
-            error("wrong image style format ! (example: '{width=250px}')", infile=file_name, line_nb=idx)
-        
+            error(
+                "wrong image style format ! (example: '{width=250px}')",
+                infile=file_name, line_nb=idx)
+
         path = "tmp/assets/" + path.split('/')[-1]
         out += "![{}]({}){}".format(title, path, style) + "\n"
-    
+
     return (out)
+
 
 # HEADER FORMAT
 ##################
 
-def change_header_format(file_name:str, file_content:str):
+def change_header_format(file_name: str, file_content: str):
     out = ""
 
     if len(file_content) == 0:
         error("empty file !", infile=file_name)
-    
+
     code_flag = 0
     header_pattern = re.compile(r'([\s]*)([#]{1,4})[\s]+(.*)')
     for idx, line in enumerate(file_content.rstrip().split('\n')):
@@ -123,7 +136,7 @@ def change_header_format(file_name:str, file_content:str):
         if not header_pattern.match(line):
             out += line + "\n"
             continue
-        
+
         groups = header_pattern.findall(line)[0]
         front_space = groups[0]
         header = groups[1]
@@ -133,11 +146,14 @@ def change_header_format(file_name:str, file_content:str):
             out += "{}{} {}\n".format(front_space, header, title)
         else:
             if len(front_space) >= 4:
-                error("too much space(s) in front of header !", infile=file_name, line_nb=idx)
+                error("too much space(s) in front of header !",
+                      infile=file_name, line_nb=idx)
             if len(front_space) > 0:
-                error("space(s) in front of header !", Warn=True, infile=file_name, line_nb=idx)
+                error("space(s) in front of header !",
+                      Warn=True, infile=file_name, line_nb=idx)
             out += "{} {}\n".format(header, title)
     return (out)
+
 
 # INSERT BOOTCAMP TITLE / PDF TITLE
 ######################################
@@ -165,7 +181,7 @@ def insert_line(file, idx, content):
 
 def insert_bootcamp_title(args):
     idx = get_line_containing("tmp/template.latex", "bootcamp_title")
-    insert_line("tmp/template.latex", idx,  args.bootcamp_title)
+    insert_line("tmp/template.latex", idx, args.bootcamp_title)
 
 
 def insert_day_title(args):
@@ -174,15 +190,16 @@ def insert_day_title(args):
     idx = get_line_containing("tmp/template.latex", "day_title")
     insert_line("tmp/template.latex", idx, args.pdf_title.split(' - ')[1])
 
+
 # CONVERT BLANK CODE BLOCKS TO TXT
 #####################################
 
-def change_empty_code_block_style(file_name:str, file_content:str):
+def change_empty_code_block_style(file_name: str, file_content: str):
     out = ""
 
     if len(file_content) == 0:
         error("empty file !", infile=file_name)
-    
+
     code_flag = 0
     code_flag_line = 0
     code_pattern = re.compile(r'^```(.*)')
@@ -190,19 +207,24 @@ def change_empty_code_block_style(file_name:str, file_content:str):
         if not code_pattern.match(line):
             out += line + "\n"
             continue
-        
+
         language = code_pattern.findall(line)[0]
 
         if code_flag:
             out += "```\n"
             code_flag = 0
             continue
-    
+
         if len(language) == 0:
             out += "```txt\n"
         else:
-            if language.strip() not in ['console', 'bash', 'sh', 'zsh', 'python', 'py', 'txt']:
-                error("unsupported language ! (supported languages are: 'console', 'bash', 'sh', 'zsh', 'python', 'py', 'txt')", infile=file_name, line_nb=idx)
+            if language.strip() not in ['console', 'bash', 'sh',
+                                        'zsh', 'python', 'py', 'txt']:
+                error(
+                    "unsupported language ! (supported languages are:\
+                         'console', 'bash', 'sh', 'zsh', 'python',\
+                              'py', 'txt')",
+                    infile=file_name, line_nb=idx)
 
             if language.strip() in ['py', 'python']:
                 out += "```{}\n".format(language)
@@ -211,19 +233,21 @@ def change_empty_code_block_style(file_name:str, file_content:str):
         code_flag = 1
         code_flag_line = idx
     if code_flag:
-        error("could not find closing code snippet !", infile=file_name, line_nb=code_flag_line)
+        error("could not find closing code snippet !",
+              infile=file_name, line_nb=code_flag_line)
 
     return (out)
+
 
 # FORMAT LIST
 ################
 
-def change_list_format(file_name:str, file_content:str):
+def change_list_format(file_name: str, file_content: str):
     out = ""
 
     if len(file_content) == 0:
         error("empty file !", infile=file_name)
-    
+
     code_flag = 0
     equation_flag = 0
     prev_list = 0
@@ -232,39 +256,41 @@ def change_list_format(file_name:str, file_content:str):
     for idx, line in enumerate(file_content.rstrip().split('\n')):
         if re.match(r'^```.*', line):
             code_flag = 1 if code_flag == 0 else 0
-        
+
         if re.match(r'^[\$]{2}.*', line):
             equation_flag = 1 if equation_flag == 0 else 0
-        
+
         if not list_pattern.match(line) or code_flag or equation_flag:
             out += line + "\n"
             prev_list = 0
             continue
-        
+
         groups = list_pattern.findall(line)[0]
         front_space = groups[0]
-        content = groups[1]
 
         if len(front_space) % list_factor != 0:
-            error("number of spaces in front of list is not a factor of {} !".format(list_factor), infile=file_name, line_nb=idx)
+            error("number of spaces in front of list is not a factor \
+                of {} !".format(list_factor), infile=file_name,
+                  line_nb=idx)
 
         if prev_list:
             out += "\n"
-        
+
         out += line + "\n"
         prev_list = 1
 
     return (out)
 
+
 # FORMAT EQUATIONS
 ##################
 
-def change_equations_format(file_name:str, file_content:str):
+def change_equations_format(file_name: str, file_content: str):
     out = ""
 
     if len(file_content) == 0:
         error("empty file !", infile=file_name)
-    
+
     eq_flag = 0
     eq_flag_line = 0
     eq_pattern = re.compile(r'^[\$]{2}(.*)')
@@ -273,8 +299,6 @@ def change_equations_format(file_name:str, file_content:str):
         if not eq_pattern.match(line):
             out += line + "\n"
             continue
-        
-        txt = eq_pattern.findall(line)[0]
 
         if eq_flag:
             out += "$$\n\\normalsize\n"
@@ -284,15 +308,17 @@ def change_equations_format(file_name:str, file_content:str):
 
         eq_flag = 1
         eq_flag_line = idx
-    # if eq_flag:
-    #     error("could not find closing equation mark !", infile=file_name, line_nb=eq_flag_line)
+    if eq_flag:
+        error("could not find closing equation mark !",
+              infile=file_name, line_nb=eq_flag_line)
 
     return (out)
+
 
 # SET URL COLOR
 ##################
 
-def set_url_color(file_name:str, file_content:str):
+def set_url_color(file_name: str, file_content: str):
     out = "---\ncolorlinks: true\nurlcolor: \"blue\"\n---\n\n"
 
     if len(file_content) == 0:
@@ -301,17 +327,20 @@ def set_url_color(file_name:str, file_content:str):
         out += line + "\n"
     return (out)
 
+
 # RUN PANDOC
 ###############
 
 
 def run_pandoc(file_name):
     res = sub_run("pandoc {} --to=pdf --pdf-engine=pdflatex --highlight-style=breezedark\
-     -t latex -o {} --template=tmp/template.latex".format(file_name, file_name + ".pdf"))
+     -t latex -o {} --template=tmp/template.latex"
+                  .format(file_name, file_name + ".pdf"))
     if res.stderr:
         print(file_name)
         error(res.stderr.decode().strip(), file_name)
-    #sub_run("rm {}".format(file_name + ".pdf"))
+    # sub_run("rm {}".format(file_name + ".pdf"))
+
 
 def run_pandoc_all(outfile, debug):
     res = sub_run("pandoc tmp/*.md --to=pdf --pdf-engine=pdflatex --highlight-style=breezedark\

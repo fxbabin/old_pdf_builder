@@ -6,7 +6,7 @@
 
 import re
 import platform
-from .utils import sub_run, error
+from utils import sub_run, error
 
 # ============================================================================#
 # ================================ FUNCTIONS =================================#
@@ -183,9 +183,9 @@ def insert_bootcamp_title(args):
 
 def insert_day_title(args):
     idx = get_line_containing("tmp/template.latex", "day_number")
-    insert_line("tmp/template.latex", idx, args.pdf_title.split(' - ')[0])
+    insert_line("tmp/template.latex", idx, args.day_title.split(' - ')[0])
     idx = get_line_containing("tmp/template.latex", "day_title")
-    insert_line("tmp/template.latex", idx, args.pdf_title.split(' - ')[1])
+    insert_line("tmp/template.latex", idx, args.day_title.split(' - ')[1])
 
 # CONVERT BLANK CODE BLOCKS TO TXT
 #####################################

@@ -5,7 +5,7 @@
 import os
 import re
 
-from .utils import error, sub_run
+from utils import error, sub_run
 
 
 # ============================================================================#
@@ -14,6 +14,14 @@ from .utils import error, sub_run
 
 
 def check_bootcamp_title(title: str):
+    """
+    Description of check_bootcamp_title
+
+    Args:
+        title (str): bootcamp title
+
+    Check the format of bootcamp title
+    """
     if not title or len(title) < 3 or len(title) > 20:
         error("invalid bootcamp title length ! (length must be between \
 3 and 20)")

@@ -88,7 +88,7 @@ git clone https://github.com/42-AI/bootcamp_data-engineering
 Now, you can build your pdf.
 
 ```console
-python3 pdf_builder -b "Data Engineering" -d ~/bootcamp_data-engineering/day00 -t "Day00 - PostgreSQL" -o day00.pdf
+python3 pdf_builder -b "Data Engineering" -d /data/bootcamp_data-engineering/day00 -t "Day00 - PostgreSQL" -o day00.pdf
 ```
 
 You now have a pdf file in your container. You can copy it out of your container with the following command.

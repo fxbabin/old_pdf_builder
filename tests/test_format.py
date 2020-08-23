@@ -139,7 +139,7 @@ class Test_change_img_format:
     def test_empty_image_title(self):
         try:
             res = change_img_format("toto.md", "![](path)")
-            assert res == "![path](tmp/assets/path)\n"
+            assert res == "\n![path](tmp/assets/path)\n"
         except Exception as e:
             assert str(e) == ''
     
@@ -153,7 +153,7 @@ class Test_change_img_format:
     def test_empty_image_style(self):
         try:
             res = change_img_format("toto.md", r"![title](path)\{\}")
-            assert res == "![title](tmp/assets/path)\n"
+            assert res == "\n![title](tmp/assets/path)\n"
         except Exception as e:
             assert str(e) == ''
     
@@ -167,21 +167,21 @@ class Test_change_img_format:
     def test_image_md_ok(self):
         try:
             res = change_img_format("toto.md", "![title](path){width=450px}\n")
-            assert res == "![title](tmp/assets/path){width=450px}\n"
+            assert res == "\n![title](tmp/assets/path){width=450px}\n"
         except Exception as e:
             assert str(e) == ""
 
     def test_empty_html_image_title(self):
         try:
             res = change_img_format("toto.md", "<img src='src/toto.png' />\n")
-            assert res == "![toto](tmp/assets/toto.png)\n"
+            assert res == "\n![toto](tmp/assets/toto.png)\n"
         except Exception as e:
             assert str(e) == ''
     
     def test_empty_html_image_title2(self):
         try:
             res = change_img_format("toto.md", """<img src="src/toto.png" />\n""")
-            assert res == "![toto](tmp/assets/toto.png)\n"
+            assert res == "\n![toto](tmp/assets/toto.png)\n"
         except Exception as e:
             assert str(e) == ''
     
@@ -195,14 +195,14 @@ class Test_change_img_format:
     def test_empty_html_image_space_front(self):
         try:
             res = change_img_format("toto.md", " <img src='src/toto.png' />\n")
-            assert res == "![toto](tmp/assets/toto.png)\n"
+            assert res == "\n![toto](tmp/assets/toto.png)\n"
         except Exception as e:
             assert str(e) == '[Error] toto.md:1 :: empty image path !'
     
     def test_empty_image_space_front(self):
         try:
             res = change_img_format("toto.md", " ![toto](src/toto.png){width=450px}\n")
-            assert res == "![toto](tmp/assets/toto.png){width=450px}\n"
+            assert res == "\n![toto](tmp/assets/toto.png){width=450px}\n"
         except Exception as e:
             assert str(e) == '[Error] toto.md:1 :: empty image path !'
     
@@ -216,7 +216,7 @@ class Test_change_img_format:
     def test_images_multi_lines(self):
         try:
             res = change_img_format("toto.md", """1\n\n![toto](src/toto.png){width=450px}\n\n2\n""")
-            assert res == "1\n\n![toto](tmp/assets/toto.png){width=450px}\n\n2\n"
+            assert res == "1\n\n\n![toto](tmp/assets/toto.png){width=450px}\n\n2\n"
         except Exception as e:
             assert str(e) == '[Error] toto.md:1 :: empty image path !'
 

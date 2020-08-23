@@ -143,7 +143,7 @@ def change_img_format(file_name: str, file_content: str):
                 infile=file_name, line_nb=idx)
 
         path = "tmp/assets/" + path.split('/')[-1]
-        out += "![{}]({}){}".format(title, path, style) + "\n"
+        out += "\n![{}]({}){}".format(title, path, style) + "\n"
 
     return (out)
 
@@ -300,7 +300,7 @@ def change_empty_code_block_style(file_name: str, file_content: str):
                       infile=file_name, line_nb=idx)
 
             if language.strip() in ['py', 'python']:
-                out += "```{}\n".format(language)
+                out += "```{}\n".format(language.strip())
             else:
                 out += "```txt\n"
         code_flag = 1

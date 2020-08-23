@@ -331,9 +331,10 @@ def change_list_format(file_name: str, file_content: str):
 
     code_flag = 0
     equation_flag = 0
-    prev_list = 0
+    empty_prev_line = 0
     list_factor = 4
-    list_pattern = re.compile(r'([\s]*)- (.*)')
+    list_pattern = re.compile(r'([\s]*)[-\*]{1} (.*)')
+
     for idx, line in enumerate(file_content.rstrip().split('\n')):
         if re.match(r'^```.*', line):
             code_flag = 1 if code_flag == 0 else 0
@@ -342,8 +343,10 @@ def change_list_format(file_name: str, file_content: str):
             equation_flag = 1 if equation_flag == 0 else 0
 
         if not list_pattern.match(line) or code_flag or equation_flag:
+            empty_prev_line = 0
             out += line + "\n"
-            prev_list = 0
+            if len(line.strip(' \n')) == 0 and not code_flag and not equation_flag:
+                empty_prev_line = 1
             continue
 
         groups = list_pattern.findall(line)[0]
@@ -353,11 +356,11 @@ def change_list_format(file_name: str, file_content: str):
             error("number of spaces in front of list is not a factor of {} !"
                   .format(list_factor), infile=file_name, line_nb=idx)
 
-        if prev_list:
+        if not empty_prev_line:
             out += "\n"
 
         out += line + "\n"
-        prev_list = 1
+        empty_prev_line = 0
 
     return (out)
 

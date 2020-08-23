@@ -288,28 +288,35 @@ class Test_change_list_format:
     def test_list_1(self):
         try:
             res = change_list_format("toto.md", "l1\n- ttt\nl3\n")
-            assert res == "l1\n- ttt\nl3\n"
+            assert res == "l1\n\n- ttt\nl3\n"
         except Exception as e:
             assert str(e) == ''
 
     def test_list_2(self):
         try:
             res = change_list_format("toto.md", "l1\n- ttt\n- aaa\nl3\n")
-            assert res == "l1\n- ttt\n\n- aaa\nl3\n"
+            assert res == "l1\n\n- ttt\n\n- aaa\nl3\n"
         except Exception as e:
             assert str(e) == ''
     
     def test_list_2_bis(self):
         try:
             res = change_list_format("toto.md", "l1\n- ttt\n\n- aaa\nl3\n")
-            assert res == "l1\n- ttt\n\n- aaa\nl3\n"
+            assert res == "l1\n\n- ttt\n\n- aaa\nl3\n"
+        except Exception as e:
+            assert str(e) == ''
+    
+    def test_list_2_dots(self):
+        try:
+            res = change_list_format("toto.md", "l1:\n* ttt\n\n* aaa\nl3\n")
+            assert res == "l1:\n\n* ttt\n\n* aaa\nl3\n"
         except Exception as e:
             assert str(e) == ''
     
     def test_list_inner_1(self):
         try:
             res = change_list_format("toto.md", "l1\n- ttt\n\n- aaa\n    - bbb\n- ccc\nl3\n")
-            assert res == "l1\n- ttt\n\n- aaa\n\n    - bbb\n\n- ccc\nl3\n"
+            assert res == "l1\n\n- ttt\n\n- aaa\n\n    - bbb\n\n- ccc\nl3\n"
         except Exception as e:
             assert str(e) == ''
     
@@ -323,17 +330,24 @@ class Test_change_list_format:
     def test_list_inner_2(self):
         try:
             res = change_list_format("toto.md", "l1\n- ttt\n\n- aaa\n    - bbb\n        - ddd\n    - eee\n- ccc\nl3\n")
-            assert res == "l1\n- ttt\n\n- aaa\n\n    - bbb\n\n        - ddd\n\n    - eee\n\n- ccc\nl3\n"
+            assert res == "l1\n\n- ttt\n\n- aaa\n\n    - bbb\n\n        - ddd\n\n    - eee\n\n- ccc\nl3\n"
         except Exception as e:
             assert str(e) == ''
         
     def test_list_inner_2_wrong_factor(self):
         try:
             res = change_list_format("toto.md", "l1\n- ttt\n\n- aaa\n    - bbb\n         - ddd\n    - eee\n- ccc\nl3\n")
-            assert res == "l1\n- ttt\n\n- aaa\n\n    - bbb\n\n         - ddd\n    - eee\n\n- ccc\nl3\n"
+            assert res == ""
         except Exception as e:
             assert str(e) == '[Error] toto.md:6 :: number of spaces in front of list is not a factor of 4 !'
     
+    def test_list_stars(self):
+        try:
+            res = change_list_format("toto.md", "`cookbook` will store 3 recipes:\n* sandwich\n* cake\n* salad\n")
+            assert res == "`cookbook` will store 3 recipes:\n\n* sandwich\n\n* cake\n\n* salad\n"
+        except Exception as e:
+            assert str(e) == ''
+
     def test_list_in_code(self):
         try:
             res = change_list_format("toto.md", "l1\n```\n- ttt\n  - aaa\n```\nl3\n")

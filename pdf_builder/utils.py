@@ -15,15 +15,13 @@ import sys
 
 def error(s, Warn=False, infile=None, line_nb=-1):
     """
-    Description of error
+    Raises error or warning at file/line precision.
 
     Args:
         s (undefined)           : error message
         Warn=False (undefined)  : Warn flag (true if warning, else error)
         infile=None (undefined) : file name
         line_nb=-1 (undefined)  : line number
-
-    Raises error or warning at file/line precision.
     """
     out = "[Error]" if not Warn else "[Warning]"
     out += " {}".format(infile) if infile else ""
@@ -36,7 +34,7 @@ def error(s, Warn=False, infile=None, line_nb=-1):
 
 def sub_decorator(func):
     """
-    Description of sub_decorator
+    Decorator to run command lines, catch exceptions.
 
     Args:
         func (undefined):
@@ -57,10 +55,10 @@ def sub_decorator(func):
 @sub_decorator
 def sub_run(command):
     """
-    Description of sub_run
+    Run a bash command and show output/error.
 
     Args:
-        command (undefined):
+        command (undefined): command line
     """
     out = subprocess.run(command,
                          shell=True,

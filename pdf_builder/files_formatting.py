@@ -17,6 +17,14 @@ from utils import sub_run, error
 
 
 def day_files_cpy(input_dir, template_file):
+    """
+    Copy files of a day and create a temporary directory.
+
+    Args:
+        input_dir (undefined): input day directory
+        template_file (undefined): template file
+
+    """
     # retrieve file lists
     day_f = sub_run("ls {}/day*.md".format(input_dir)).stdout.strip()
     ex_list = sub_run("ls {}/**/ex*.md".format(input_dir)).stdout
@@ -40,6 +48,14 @@ def day_files_cpy(input_dir, template_file):
 
 
 def input_file_cpy(input_file, template_file):
+    """
+    Copy input file and create tmp directory.
+
+    Args:
+        input_file (undefined): input file
+        template_file (undefined): template file
+
+    """
     # create a tmp dir with a copy of all files
     sub_run("rm -rf tmp")
     sub_run("mkdir -p tmp")
@@ -57,6 +73,13 @@ def input_file_cpy(input_file, template_file):
 
 
 def files_format(file_name):
+    """
+    Add clearpages at the end of exercises.
+
+    Args:
+        file_name (undefined): file name
+
+    """
     if platform.system() == "Darwin":
         sub_run(
             "echo '\n\\\\clearpage' >> tmp/{}"
@@ -71,6 +94,14 @@ def files_format(file_name):
 
 
 def change_img_format(file_name: str, file_content: str):
+    """
+    Change the images format (also convert html images into markdown ones).
+
+    Args:
+        file_name (str): file name
+        file_content (str): file content
+
+    """
     groups = None
     title = None
     path = None
@@ -121,6 +152,14 @@ def change_img_format(file_name: str, file_content: str):
 
 
 def change_header_format(file_name: str, file_content: str):
+    """
+    Change and check the header format.
+
+    Args:
+        file_name (str): file name
+        file_content (str): file content
+
+    """
     out = ""
 
     if len(file_content) == 0:
@@ -157,6 +196,14 @@ def change_header_format(file_name: str, file_content: str):
 
 
 def get_line_containing(file, content):
+    """
+    Search a line containing a specific content.
+
+    Args:
+        file (undefined): file name
+        content (undefined): searched content
+
+    """
     index = 0
     with open(file, 'r') as infile:
         for idx, line in enumerate(infile):
@@ -166,6 +213,15 @@ def get_line_containing(file, content):
 
 
 def insert_line(file, idx, content):
+    """
+    Insert line into a file at a precise line.
+
+    Args:
+        file (undefined): file name
+        idx (undefined): line number
+        content (undefined): content to be added.
+
+    """
     f = open(file, "r")
     contents = f.readlines()
     f.close()
@@ -177,11 +233,25 @@ def insert_line(file, idx, content):
 
 
 def insert_bootcamp_title(args):
+    """
+    Insert bootcamp title to the template file.
+
+    Args:
+        args (undefined):
+
+    """
     idx = get_line_containing("tmp/template.latex", "bootcamp_title")
     insert_line("tmp/template.latex", idx,  args.bootcamp_title)
 
 
 def insert_day_title(args):
+    """
+    Insert day title to the template file.
+
+    Args:
+        args (undefined):
+
+    """
     idx = get_line_containing("tmp/template.latex", "day_number")
     insert_line("tmp/template.latex", idx, args.day_title.split(' - ')[0])
     idx = get_line_containing("tmp/template.latex", "day_title")
@@ -192,6 +262,14 @@ def insert_day_title(args):
 
 
 def change_empty_code_block_style(file_name: str, file_content: str):
+    """
+    Change the empty block format to txt.
+
+    Args:
+        file_name (str): file name
+        file_content (str): file content
+
+    """
     out = ""
 
     if len(file_content) == 0:
@@ -238,6 +316,14 @@ def change_empty_code_block_style(file_name: str, file_content: str):
 
 
 def change_list_format(file_name: str, file_content: str):
+    """
+    Change and check the list format.
+
+    Args:
+        file_name (str): file name
+        file_content (str): file content
+
+    """
     out = ""
 
     if len(file_content) == 0:
@@ -280,6 +366,14 @@ def change_list_format(file_name: str, file_content: str):
 
 
 def change_equations_format(file_name: str, file_content: str):
+    """
+    Change and check the format of equations.
+
+    Args:
+        file_name (str): file name
+        file_content (str): file content
+
+    """
     out = ""
 
     if len(file_content) == 0:
@@ -313,6 +407,14 @@ def change_equations_format(file_name: str, file_content: str):
 
 
 def set_url_color(file_name: str, file_content: str):
+    """
+    Add url parameters for pdf build.
+
+    Args:
+        file_name (str): file name
+        file_content (str): file content
+
+    """
     out = "---\ncolorlinks: true\nurlcolor: \"blue\"\n---\n\n"
 
     if len(file_content) == 0:
@@ -326,6 +428,13 @@ def set_url_color(file_name: str, file_content: str):
 
 
 def run_pandoc(file_name):
+    """
+    Build pdf file for each markdown.
+
+    Args:
+        file_name (undefined):
+
+    """
     res = sub_run("pandoc {} --to=pdf --pdf-engine=pdflatex --highlight-style=breezedark\
      -t latex -o {} --template=tmp/template.latex"
                   .format(file_name, file_name + ".pdf"))
@@ -335,6 +444,14 @@ def run_pandoc(file_name):
 
 
 def run_pandoc_all(outfile, debug):
+    """
+    Build a pdf with all markdown files.
+
+    Args:
+        outfile (undefined): output file name
+        debug (undefined): debug option
+
+    """
     res = sub_run("pandoc tmp/*.md --to=pdf --pdf-engine=pdflatex --highlight-style=breezedark\
      -t latex -o {} --template=tmp/template.latex".format(outfile))
     if res.stderr:

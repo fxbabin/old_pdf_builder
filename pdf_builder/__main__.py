@@ -32,6 +32,7 @@ def get_arguments():
 
     parser = argparse.ArgumentParser(description='A pdf builder for 42-AI \
         projects')
+    group = parser.add_mutually_exclusive_group()
     parser.add_argument('-b', '--bootcamp_title', type=str, help='title of\
         the bootcamp (ex: "Machine Learning")', required=True)
     parser.add_argument('-t', '--day_title', type=str, default="Day00 - \
@@ -40,11 +41,11 @@ def get_arguments():
                         required=True)
     parser.add_argument('-o', '--output_file', type=str, help='Pdf output\
          file (ex: "day00.pdf")', required=True)
-    parser.add_argument('-d', '--input_dir', type=str,
-                        help='Directory of the day (ex:\
+    group.add_argument('-d', '--input_dir', type=str,
+                       help='Directory of the day (ex:\
                               "bootcamp_python/day00"')
-    parser.add_argument('-f', '--input_file', type=str,
-                        help='Specific markdown file (for documentation)')
+    group.add_argument('-f', '--input_file', type=str,
+                       help='Specific markdown file (for documentation)')
     parser.add_argument('--template_file', type=str,
                         default="assets/template.latex",
                         help='latex template file for building pdfs')
@@ -69,10 +70,10 @@ def main():
         params_check.check_day_title(args.day_title)
         params_check.check_file_dir(args)
 
-        if args.input_dir:  # in case only a file is given
+        if args.input_dir:  # check and copy the day directory
             params_check.check_input_dir(args.input_dir)
             files_formatting.day_files_cpy(args.input_dir, args.template_file)
-        else:
+        else:               # check and copy the documentation file
             params_check.check_input_file(args.input_file)
             files_formatting.input_file_cpy(
                 args.input_file, args.template_file)

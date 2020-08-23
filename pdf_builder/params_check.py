@@ -15,12 +15,10 @@ from utils import error, sub_run
 
 def check_bootcamp_title(title: str):
     """
-    Description of check_bootcamp_title
+    Check the format of bootcamp title
 
     Args:
         title (str): bootcamp title
-
-    Check the format of bootcamp title
     """
     if not title or len(title) < 3 or len(title) > 20:
         error("invalid bootcamp title length ! (length must be between \
@@ -31,6 +29,12 @@ def check_bootcamp_title(title: str):
 
 
 def check_input_dir(directory: str):
+    """
+    Check the bootcamp directory file organization
+
+    Args:
+        directory (str): bootcamp day directory
+    """
     # check directory is in the format dayXX
     while directory[-1] == '/':
         directory = directory[:-1]
@@ -55,6 +59,13 @@ def check_input_dir(directory: str):
 
 
 def check_input_file(input_file: str):
+    """
+    Check if file exists and is markdown.
+
+    Args:
+        input_file (str): file name
+
+    """
     if not os.path.isfile(input_file):
         error("'{}' is not a file !".format(input_file))
     if input_file.split('.')[-1] != "md":
@@ -62,6 +73,13 @@ def check_input_file(input_file: str):
 
 
 def check_day_title(title: str):
+    """
+    Check the day title format.
+
+    Args:
+        title (str): title
+
+    """
     if not title or len(title) < 11 or len(title) > 40:
         error("invalid day title length ! (length must be between\
  11 and 40)")
@@ -71,9 +89,3 @@ def check_day_title(title: str):
         error("invalid day title ! (it must be formatted as follows\
              \"DayXX - ...\")")
     return (True)
-
-
-def check_file_dir(args):
-    if args.input_dir and args.input_file:
-        error("you provided a file AND a folder, please\
-               provide a file OR a folder !")

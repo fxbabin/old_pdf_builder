@@ -345,7 +345,7 @@ def change_list_format(file_name: str, file_content: str):
         if not list_pattern.match(line) or code_flag or equation_flag:
             empty_prev_line = 0
             out += line + "\n"
-            if len(line.strip(' \n')) == 0 and not code_flag and not equation_flag:
+            if len(line.strip()) == 0 and not code_flag and not equation_flag:
                 empty_prev_line = 1
             continue
 

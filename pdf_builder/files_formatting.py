@@ -5,7 +5,6 @@
 # ============================================================================#
 
 import re
-import platform
 from utils import sub_run, error
 
 # ============================================================================#
@@ -80,17 +79,22 @@ def files_format(file_name):
         file_name (undefined): file name
 
     """
-    platform = platform.system()
-    if platform == "Darwin":
-        sub_run(
-            "echo '\n\\\\clearpage' >> tmp/{}"
-            .format(file_name.split('/')[-1]))
-    elif platform == "Linux":
+    def in_docker():
+        with open('/proc/self/cgroup', 'r') as procfile:
+            for line in procfile:
+                fields = line.strip().split('/')
+                if 'docker' in fields:
+                    return True
+        return False
+
+    if in_docker():
         sub_run(
             "echo '\n\\clearpage' >> tmp/{}"
             .format(file_name.split('/')[-1]))
     else:
-        error("unsupported platform '{}' ! (supported platforms are: 'Linux' and 'Darwin')".format(platform))
+        sub_run(
+            "echo '\n\\\\clearpage' >> tmp/{}"
+            .format(file_name.split('/')[-1]))
 
 # IMAGE FORMAT
 #################

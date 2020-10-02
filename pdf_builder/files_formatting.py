@@ -80,14 +80,17 @@ def files_format(file_name):
         file_name (undefined): file name
 
     """
-    if platform.system() == "Darwin":
+    platform = platform.system()
+    if platform == "Darwin":
+        sub_run(
+            "echo '\n\\\\clearpage' >> tmp/{}"
+            .format(file_name.split('/')[-1]))
+    elif platform == "Linux":
         sub_run(
             "echo '\n\\\\clearpage' >> tmp/{}"
             .format(file_name.split('/')[-1]))
     else:
-        sub_run(
-            "echo '\n\\\\clearpage' >> tmp/{}"
-            .format(file_name.split('/')[-1]))
+        error("unsupported platform '{}' ! (supported platforms are: 'Linux' and 'Darwin')".format(platform))
 
 # IMAGE FORMAT
 #################

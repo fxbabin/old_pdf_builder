@@ -24,7 +24,7 @@ def error(s, Warn=False, infile=None, line_nb=-1):
         line_nb=-1 (undefined)  : line number
     """
     out = "[Error]" if not Warn else "[Warning]"
-    out += " {}".format(infile[4:-10] + ".md") if infile else ""
+    out += " {}".format(infile.split('/')[-1].replace("_master", "").replace("_interlude", "")) if infile else ""
     out += ":{}".format(line_nb + 1) if line_nb > -1 else ""
 
     if not Warn:

@@ -24,7 +24,8 @@ def error(s, Warn=False, infile=None, line_nb=-1):
         line_nb=-1 (undefined)  : line number
     """
     out = "[Error]" if not Warn else "[Warning]"
-    out += " {}".format(infile.split('/')[-1].replace("_master", "").replace("_interlude", "")) if infile else ""
+    out += " {}".format(infile.split('/')[-1].replace("_master", "")
+                        .replace("_interlude", "")) if infile else ""
     out += ":{}".format(line_nb + 1) if line_nb > -1 else ""
 
     if not Warn:
@@ -41,6 +42,7 @@ def sub_decorator(func):
 
     Decorator for subprocess run (try catch errors)
     """
+
     def wrapper_func(*args, **kwargs):
         try:
             res = func(*args, **kwargs)
